@@ -46,11 +46,11 @@ INSTALLED_APPS = [
     'dominios_comunes',
     #'caja',          
     'prendas',          
-    #'terceros',          
+    'terceros',          
     #'apartado_credito',  
-    #'compra_venta',      
+    'compra_venta',      
     #'egreso_ingreso',
-    #'api_auth',  
+    'api_auth',  
 ]
 
 MIDDLEWARE = [
