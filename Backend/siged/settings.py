@@ -43,14 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    #'dominios_comunes',
+    'dominios_comunes',
     #'caja',          
     'prendas',          
-    #'terceros',          
+    'terceros',          
     #'apartado_credito',  
-    #'compra_venta',      
+    'compra_venta',      
     #'egreso_ingreso',
-    #'api_auth',  
+    'api_auth',  
 ]
 
 MIDDLEWARE = [
