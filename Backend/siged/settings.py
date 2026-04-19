@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    #'dominios_comunes',
+    'dominios_comunes',
     #'caja',          
     'prendas',          
     #'terceros',          

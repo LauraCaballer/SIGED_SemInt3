@@ -29,13 +29,13 @@ urlpatterns = [
     path('api/auth/login/', login_view),
     path('api/auth/logout/', logout_view),
 
-    path('api/terceros/', include('terceros.urls')),
+    #path('api/terceros/', include('terceros.urls')),
     path('api/dominios_comunes/', include('dominios_comunes.urls')),
     path('api/prendas/', include('prendas.urls')),
-    path('api/egreso_ingreso/', include('egreso_ingreso.urls')),
-    path('api/apartado_credito/', include('apartado_credito.urls')),
-    path('api/compra_venta/', include('compra_venta.urls')),
+    #path('api/egreso_ingreso/', include('egreso_ingreso.urls')),
+    #path('api/apartado_credito/', include('apartado_credito.urls')),
+    #path('api/compra_venta/', include('compra_venta.urls')),
 
 
-    path('api/caja/', include('caja.urls')),
+    #path('api/caja/', include('caja.urls')),
 ]
