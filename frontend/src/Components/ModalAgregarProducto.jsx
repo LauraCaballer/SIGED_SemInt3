@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../css/Modal.css";
 import { FaPlus } from "react-icons/fa";
+import { apiUrl } from "../config/api";
 
 export default function ModalAgregarProducto({ onClose, onAdd }) {
   const [nombre, setNombre] = useState("");
@@ -15,7 +16,7 @@ export default function ModalAgregarProducto({ onClose, onAdd }) {
 
   // 🔹 Cargar tipos de prenda
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/prendas/tipos-prenda/")
+    fetch(apiUrl("/prendas/tipos-prenda/"))
       .then((res) => res.json())
       .then((data) => setTiposPrenda(data))
       .catch((err) => console.error("Error cargando tipos:", err));
@@ -34,7 +35,7 @@ export default function ModalAgregarProducto({ onClose, onAdd }) {
       archivado: false,
     };
 
-    const res = await fetch("http://127.0.0.1:8000/api/prendas/prendas/", {
+    const res = await fetch(apiUrl("/prendas/prendas/"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -53,7 +54,7 @@ export default function ModalAgregarProducto({ onClose, onAdd }) {
   // 🔹 Crear nuevo tipo de prenda
   const handleCrearTipo = async () => {
     if (!nuevoTipo.trim()) return alert("Ingrese un nombre válido");
-    const res = await fetch("http://127.0.0.1:8000/api/prendas/tipos-prenda/", {
+    const res = await fetch(apiUrl("/prendas/tipos-prenda/"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre: nuevoTipo }),

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../css/ModalEditar.css";
+import { apiUrl } from "../config/api";
 
 export default function ModalEditar({ prenda, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -11,7 +12,7 @@ export default function ModalEditar({ prenda, onClose, onSaved }) {
 
   const handleSave = async () => {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/prendas/prendas/${prenda.id}/`,
+      apiUrl(`/prendas/prendas/${prenda.id}/`),
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

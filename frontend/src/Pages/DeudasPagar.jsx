@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
-const API_BASE = "http://127.0.0.1:8000";
+import { apiUrl } from "../config/api";
 
 // Función para formatear números al estándar español: 53.189,90
 const formatNumber = (value, decimals = 2) => {
@@ -75,7 +74,7 @@ const DeudasPagar = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/dominios_comunes/metodos-pago/`);
+      const res = await fetch(apiUrl("/dominios_comunes/metodos-pago/"));
       if (!res.ok) throw new Error("Error al obtener métodos de pago");
       const data = await res.json();
       setMetodosPago(data);
@@ -88,7 +87,7 @@ const DeudasPagar = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/apartado_credito/deudas-por-pagar-optimizado/`);
+      const res = await fetch(apiUrl("/apartado_credito/deudas-por-pagar-optimizado/"));
       if (!res.ok) throw new Error("Error al obtener deudas");
       const data = await res.json();
 
@@ -121,7 +120,7 @@ const DeudasPagar = () => {
       setLoading(true);
       
       // ✅ CORREGIDO: Usar el endpoint optimizado y filtrar despus
-      const res = await fetch(`${API_BASE}/api/apartado_credito/deudas-por-pagar-optimizado/`);
+      const res = await fetch(apiUrl("/apartado_credito/deudas-por-pagar-optimizado/"));
       if (!res.ok) throw new Error("Error al obtener deudas");
       const todosLosDatos = await res.json();
 
@@ -186,7 +185,7 @@ const DeudasPagar = () => {
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/apartado_credito/cuotas/`, {
+      const res = await fetch(apiUrl("/apartado_credito/cuotas/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -202,12 +201,12 @@ const DeudasPagar = () => {
 
       let detalleActualizado = null;
       const det = await fetch(
-        `${API_BASE}/api/apartado_credito/creditos/${deuda.credito_id}/`
+        apiUrl(`/apartado_credito/creditos/${deuda.credito_id}/`)
       );
       detalleActualizado = det.ok ? await det.json() : null;
 
       const cuotasRes = await fetch(
-        `${API_BASE}/api/apartado_credito/cuotas/?credito=${deuda.credito_id}`
+        apiUrl(`/apartado_credito/cuotas/?credito=${deuda.credito_id}`)
       );
       const cuotasActualizadas = cuotasRes.ok ? await cuotasRes.json() : [];
 
@@ -272,7 +271,7 @@ const DeudasPagar = () => {
     }
 
     try {
-      const url = `${API_BASE}/api/apartado_credito/creditos/${deuda.credito_id}/cancelar/`;
+      const url = apiUrl(`/apartado_credito/creditos/${deuda.credito_id}/cancelar/`);
 
       const res = await fetch(url, {
         method: "POST",

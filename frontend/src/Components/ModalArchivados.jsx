@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 
 import "../css/ModalSimple.css";
+import { apiUrl } from "../config/api";
 
 export default function ModalArchivados({ onClose, onRefresh }) {
   const [archivados, setArchivados] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/prendas/prendas/")
+    fetch(apiUrl("/prendas/prendas/"))
       .then((res) => res.json())
       .then((data) => setArchivados(data.filter((p) => p.archivado)))
       .catch((err) => console.error("Error cargando archivados:", err));
   }, []);
 
   const handleDesarchivar = async (id) => {
-    const res = await fetch(`http://127.0.0.1:8000/api/prendas/prendas/${id}/`, {
+    const res = await fetch(apiUrl(`/prendas/prendas/${id}/`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ archivado: false }),

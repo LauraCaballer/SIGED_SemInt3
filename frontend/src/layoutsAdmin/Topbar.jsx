@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { SlUserFemale } from "react-icons/sl";
+import { apiUrl } from "../config/api";
 
 
 export default function Topbar({ onMobileMenuToggle }) {
@@ -10,7 +11,7 @@ export default function Topbar({ onMobileMenuToggle }) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/auth/logout/", {
+      const response = await fetch(apiUrl("/auth/logout/"), {
         method: "POST",
         credentials: "include", // necesario para borrar la sesión
       });

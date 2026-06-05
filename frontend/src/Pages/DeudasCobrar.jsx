@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-
-const API_BASE = "http://127.0.0.1:8000";
+import { apiUrl } from "../config/api";
 
 // Función para formatear números al estándar español: 53.189,90
 const formatNumber = (value, decimals = 2) => {
@@ -78,7 +77,7 @@ const DeudasCobrar = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/dominios_comunes/metodos-pago/`);
+      const res = await fetch(apiUrl("/dominios_comunes/metodos-pago/"));
       if (!res.ok) throw new Error("Error al obtener métodos de pago");
       const data = await res.json();
       setMetodosPago(data);
@@ -92,7 +91,7 @@ const DeudasCobrar = () => {
     setError(null);
     try {
       // ✅ UNA SOLA CONSULTA
-      const res = await fetch(`${API_BASE}/api/apartado_credito/deudas-por-cobrar-optimizado/`);
+      const res = await fetch(apiUrl("/apartado_credito/deudas-por-cobrar-optimizado/"));
       if (!res.ok) throw new Error("Error al obtener deudas");
       const data = await res.json();
 
@@ -126,7 +125,7 @@ const DeudasCobrar = () => {
       setLoading(true);
       
       // ✅ CORREGIDO: Usar el endpoint optimizado y filtrar después
-      const res = await fetch(`${API_BASE}/api/apartado_credito/deudas-por-cobrar-optimizado/`);
+      const res = await fetch(apiUrl("/apartado_credito/deudas-por-cobrar-optimizado/"));
       if (!res.ok) throw new Error("Error al obtener deudas");
       const todosLosDatos = await res.json();
 
@@ -203,7 +202,7 @@ const DeudasCobrar = () => {
     if (deuda.apartado_id) payload.apartado = deuda.apartado_id;
 
     try {
-      const res = await fetch(`${API_BASE}/api/apartado_credito/cuotas/`, {
+      const res = await fetch(apiUrl("/apartado_credito/cuotas/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -221,12 +220,12 @@ const DeudasCobrar = () => {
       let detalleActualizado = null;
       if (deuda.credito_id) {
         const det = await fetch(
-          `${API_BASE}/api/apartado_credito/creditos/${deuda.credito_id}/`
+          apiUrl(`/apartado_credito/creditos/${deuda.credito_id}/`)
         );
         detalleActualizado = det.ok ? await det.json() : null;
       } else if (deuda.apartado_id) {
         const det = await fetch(
-          `${API_BASE}/api/apartado_credito/apartados/${deuda.apartado_id}/`
+          apiUrl(`/apartado_credito/apartados/${deuda.apartado_id}/`)
         );
         detalleActualizado = det.ok ? await det.json() : null;
       }
@@ -235,12 +234,12 @@ const DeudasCobrar = () => {
       let cuotasActualizadas = [];
       if (deuda.credito_id) {
         const cuotasRes = await fetch(
-          `${API_BASE}/api/apartado_credito/cuotas/?credito=${deuda.credito_id}`
+          apiUrl(`/apartado_credito/cuotas/?credito=${deuda.credito_id}`)
         );
         cuotasActualizadas = cuotasRes.ok ? await cuotasRes.json() : [];
       } else if (deuda.apartado_id) {
         const cuotasRes = await fetch(
-          `${API_BASE}/api/apartado_credito/cuotas/?apartado=${deuda.apartado_id}`
+          apiUrl(`/apartado_credito/cuotas/?apartado=${deuda.apartado_id}`)
         );
         cuotasActualizadas = cuotasRes.ok ? await cuotasRes.json() : [];
       }
@@ -309,9 +308,9 @@ const DeudasCobrar = () => {
     try {
       let url = "";
       if (deuda.credito_id) {
-        url = `${API_BASE}/api/apartado_credito/creditos/${deuda.credito_id}/cancelar/`;
+        url = apiUrl(`/apartado_credito/creditos/${deuda.credito_id}/cancelar/`);
       } else if (deuda.apartado_id) {
-        url = `${API_BASE}/api/apartado_credito/apartados/${deuda.apartado_id}/cancelar/`;
+        url = apiUrl(`/apartado_credito/apartados/${deuda.apartado_id}/cancelar/`);
       } else {
         alert("Error: No se pudo identificar el tipo de deuda");
         return;
