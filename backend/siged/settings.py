@@ -145,7 +145,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # CORS settings (si usas django-cors-headers)
-CORS_ALLOW_ALL_ORIGINS = True  # Solo para desarrollo
+# CORS settings (django-cors-headers)
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://siged-frontend.vercel.app",
+]
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://siged-frontend.vercel.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key field type
