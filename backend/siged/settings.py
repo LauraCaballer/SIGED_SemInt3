@@ -149,12 +149,14 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "https://siged-frontend.vercel.app",
+    "https://siged-sem-int3.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://siged-frontend.vercel.app",
+    "https://siged-sem-int3.vercel.app",
 ]
-CORS_ALLOW_CREDENTIALS = True
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
