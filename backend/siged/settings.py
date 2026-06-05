@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'terceros',          
     'apartado_credito',  
     'compra_venta',      
-    'egreso_ingreso',
+    'notifications',
     'api_auth',  
 ]
 
