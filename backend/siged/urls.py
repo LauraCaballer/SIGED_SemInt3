@@ -37,5 +37,6 @@ urlpatterns = [
     path('api/compra_venta/', include('compra_venta.urls')),
 
 
+    path('api/notifications/', include('notifications.urls')),
     path('api/caja/', include('caja.urls')),
 ]

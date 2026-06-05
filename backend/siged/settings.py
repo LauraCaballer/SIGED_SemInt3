@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'prendas',          
     'terceros',          
     'apartado_credito',  
-    'compra_venta',      
+    'compra_venta',
+    'egreso_ingreso',      
     'notifications',
     'api_auth',  
 ]
