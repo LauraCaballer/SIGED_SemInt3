@@ -4,8 +4,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import AdminLayout from './layoutsAdmin/AdminLayout';
 import Login from "./Pages/Login";
 import Inicio from './Pages/Inicio';
+import Inicio from './Pages/Inicio';
 import Clientes from './Pages/Clientes';
 import Proveedores from './Pages/Proveedores';
+import DeudasCobrar from './Pages/DeudasCobrar';
+import DeudasPagar from './Pages/DeudasPagar';
+import Inventario from './Pages/Inventario';
+import Caja from './Pages/Caja';
 import DeudasCobrar from './Pages/DeudasCobrar';
 import DeudasPagar from './Pages/DeudasPagar';
 import Inventario from './Pages/Inventario';
@@ -13,6 +18,9 @@ import Caja from './Pages/Caja';
 import CompraForm from './Pages/CompraForm';
 import Venta from './Pages/Venta';
 import './App.css';
+import Egresos from './Pages/EgresosForm';
+import Ingresos from './Pages/IngresosForm';
+
 import Egresos from './Pages/EgresosForm';
 import Ingresos from './Pages/IngresosForm';
 
@@ -30,6 +38,8 @@ function App() {
           <Route index element={ <Inicio />} />      
           <Route path="clientes" element={<Clientes />} />
           <Route path="proveedores" element={<Proveedores />} />
+          <Route path="deudas/cobrar" element={<DeudasCobrar />} />
+          <Route path="deudas/pagar" element={<DeudasPagar />} />
           <Route path="deudas/cobrar" element={<DeudasCobrar />} />
           <Route path="deudas/pagar" element={<DeudasPagar />} />
           <Route path="inventario" element={<Inventario />} />
