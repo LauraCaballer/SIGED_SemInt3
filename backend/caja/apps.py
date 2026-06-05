@@ -9,4 +9,4 @@ class CajaConfig(AppConfig):
     def ready(self):
         """Importar signals cuando la app esté lista"""
         import caja.signals  # ✅ Esto activa los signals
-        print("✅ [CAJA] Signals cargados correctamente")  # Para debug
+        print("[CAJA] Signals cargados correctamente")  # Para debug
