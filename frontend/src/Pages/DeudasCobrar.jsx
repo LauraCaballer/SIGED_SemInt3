@@ -90,6 +90,11 @@ const DeudasCobrar = () => {
     try {
       const clientName = cliente.nombre || cliente.razon_social || `${cliente.nombres || ""} ${cliente.apellidos || ""}`.trim();
       
+      if (!cliente.email) {
+        alert(`El cliente ${clientName} no tiene un correo electrónico registrado.`);
+        return;
+      }
+      
       const payload = {
         client_id: cliente.id,
         client_email: cliente.email,

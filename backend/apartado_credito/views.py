@@ -335,6 +335,7 @@ def deudas_por_cobrar_optimizado(request):
                     'id': venta.cliente.id,
                     'nombre': venta.cliente.nombre or '',
                     'cedula': getattr(venta.cliente, 'cedula', None) or getattr(venta.cliente, 'identificacion', None),
+                    'email': getattr(venta.cliente, 'email', None) or '',
                 },
                 'deudas': []
             }
