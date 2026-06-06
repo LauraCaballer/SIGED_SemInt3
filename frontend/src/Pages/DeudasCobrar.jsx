@@ -50,9 +50,13 @@ const DeudasCobrar = () => {
 
   const [abonoModal, setAbonoModal] = useState(null);
   const [metodosPago, setMetodosPago] = useState([]);
-  const [openClientId, setOpenClientId] = useState(null);
   const [openDeudaId, setOpenDeudaId] = useState(null);
   
+  // Estado para configuración de notificaciones
+  const [configModal, setConfigModal] = useState(false);
+  const [notifConfig, setNotifConfig] = useState({ activo: false, frecuencia: "semanal" });
+  const [savingConfig, setSavingConfig] = useState(false);
+
   // Estado para el filtro activo
   const [filtroEstado, setFiltroEstado] = useState("En Proceso");
 
@@ -83,6 +87,36 @@ const DeudasCobrar = () => {
       setMetodosPago(data);
     } catch (err) {
       console.error("Error cargando métodos de pago:", err);
+    }
+  };
+
+  const fetchConfig = async () => {
+    try {
+      const res = await fetch(apiUrl("/notifications/config/"));
+      if (res.ok) {
+        const data = await res.json();
+        setNotifConfig(data);
+      }
+    } catch (err) {
+      console.error("Error cargando configuración:", err);
+    }
+  };
+
+  const saveConfig = async () => {
+    setSavingConfig(true);
+    try {
+      const res = await fetch(apiUrl("/notifications/config/"), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notifConfig)
+      });
+      if (!res.ok) throw new Error("Error al guardar configuración");
+      setConfigModal(false);
+      alert("Configuración de notificaciones actualizada");
+    } catch (err) {
+      alert("Error al guardar: " + err.message);
+    } finally {
+      setSavingConfig(false);
     }
   };
 
@@ -389,6 +423,7 @@ const DeudasCobrar = () => {
   useEffect(() => {
     fetchAllClientesAndFilter();
     fetchMetodosPago();
+    fetchConfig();
   }, [filtroEstado]);
 
   useEffect(() => {
@@ -422,6 +457,13 @@ const DeudasCobrar = () => {
         <h1 className="text-3xl font-bold text-gray-800">
           Clientes - Deudas por Cobrar
         </h1>
+        <button
+          onClick={() => setConfigModal(true)}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Avisos Automáticos
+        </button>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-3">
@@ -726,7 +768,8 @@ const DeudasCobrar = () => {
                                 </button>
                                 <button
                                   onClick={() => handleRecordatorio(cliente, deuda)}
-                                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                                  className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors ${["finalizado", "cancelado"].includes(getEstadoNombre(deuda.estado).toLowerCase()) ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}
+                                  disabled={["finalizado", "cancelado"].includes(getEstadoNombre(deuda.estado).toLowerCase())}
                                 >
                                   Recordatorio
                                 </button>
@@ -848,6 +891,56 @@ const DeudasCobrar = () => {
               >
                 {abonoModal.submitting && <SmallSpinner />}
                 Confirmar abono
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {configModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md p-6 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Avisos Automáticos
+              </h2>
+              <button onClick={() => setConfigModal(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <div>
+                  <p className="font-medium text-gray-800">Activar Mensajes</p>
+                  <p className="text-xs text-gray-500">Enviar recordatorios automáticos</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={notifConfig.activo} onChange={(e) => setNotifConfig({...notifConfig, activo: e.target.checked})} />
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+
+              {notifConfig.activo && (
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-700">Frecuencia de Envío</label>
+                  <select
+                    value={notifConfig.frecuencia}
+                    onChange={(e) => setNotifConfig({...notifConfig, frecuencia: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="diario">Diario</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="mensual">Mensual</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setConfigModal(false)} className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium" disabled={savingConfig}>Cancelar</button>
+              <button onClick={saveConfig} disabled={savingConfig} className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50">
+                {savingConfig && <SmallSpinner />}
+                Guardar Configuración
               </button>
             </div>
           </div>

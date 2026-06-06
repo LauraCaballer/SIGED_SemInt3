@@ -4,6 +4,11 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import ConfiguracionNotificacion
+from .serializers import ConfiguracionNotificacionSerializer
 
 # Expecting POST with JSON containing client_id and optional custom message
 @csrf_exempt
@@ -77,3 +82,17 @@ def send_reminder(request):
             return JsonResponse({'error': 'Failed to send email', 'detail': response.text}, status=500)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+class ConfiguracionNotificacionView(APIView):
+    def get(self, request):
+        config = ConfiguracionNotificacion.load()
+        serializer = ConfiguracionNotificacionSerializer(config)
+        return Response(serializer.data)
+
+    def put(self, request):
+        config = ConfiguracionNotificacion.load()
+        serializer = ConfiguracionNotificacionSerializer(config, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
