@@ -86,6 +86,37 @@ const DeudasCobrar = () => {
     }
   };
 
+  const handleRecordatorio = async (cliente, deuda) => {
+    try {
+      const clientName = cliente.nombre || cliente.razon_social || `${cliente.nombres || ""} ${cliente.apellidos || ""}`.trim();
+      
+      const payload = {
+        client_id: cliente.id,
+        client_email: cliente.email,
+        client_name: clientName,
+        deuda_monto: deuda.monto_pendiente,
+        deuda_tipo: deuda.tipo,
+        deuda_venta_id: deuda.venta_id
+      };
+
+      const res = await fetch(apiUrl("/notifications/recordatorio/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || "Error al enviar recordatorio");
+      }
+      alert("Recordatorio enviado correctamente");
+    } catch (err) {
+      console.error(err);
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+
   const fetchAllClientesAndFilter = async () => {
     setLoading(true);
     setError(null);
@@ -684,6 +715,12 @@ const DeudasCobrar = () => {
                                   className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors"
                                 >
                                   Abonar
+                                </button>
+                                <button
+                                  onClick={() => handleRecordatorio(cliente, deuda)}
+                                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                  Recordatorio
                                 </button>
                               </div>
                             </div>
