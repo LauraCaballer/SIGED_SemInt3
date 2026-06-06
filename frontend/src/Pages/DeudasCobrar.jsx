@@ -50,6 +50,7 @@ const DeudasCobrar = () => {
 
   const [abonoModal, setAbonoModal] = useState(null);
   const [metodosPago, setMetodosPago] = useState([]);
+  const [openClientId, setOpenClientId] = useState(null);
   const [openDeudaId, setOpenDeudaId] = useState(null);
   
   // Estado para configuración de notificaciones
