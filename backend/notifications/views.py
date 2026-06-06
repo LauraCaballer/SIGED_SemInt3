@@ -20,8 +20,8 @@ def send_reminder(request):
         deuda_tipo = data.get('deuda_tipo')
         deuda_venta_id = data.get('deuda_venta_id')
         
-        if not client_email:
-            return JsonResponse({'error': 'client_email required'}, status=400)
+        if not client_email or str(client_email).strip() == '' or str(client_email).lower() == 'null':
+            return JsonResponse({'error': 'El cliente no tiene un correo electrónico registrado. Por favor, actualice los datos del cliente en el sistema.'}, status=400)
             
         api_key = os.getenv('BREVO_API_KEY')
         sender_email = os.getenv('BREVO_SENDER_EMAIL', 'formcreatorufps@gmail.com')

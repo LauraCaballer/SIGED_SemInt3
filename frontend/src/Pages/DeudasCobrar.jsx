@@ -90,8 +90,8 @@ const DeudasCobrar = () => {
     try {
       const clientName = cliente.nombre || cliente.razon_social || `${cliente.nombres || ""} ${cliente.apellidos || ""}`.trim();
       
-      if (!cliente.email) {
-        alert(`El cliente ${clientName} no tiene un correo electrónico registrado.`);
+      if (!cliente.email || String(cliente.email).trim() === "" || String(cliente.email).toLowerCase() === "null") {
+        alert(`El cliente ${clientName} no tiene un correo electrónico válido registrado.`);
         return;
       }
       
@@ -501,6 +501,9 @@ const DeudasCobrar = () => {
                   </h3>
                   <p className="text-sm text-gray-500">
                     CI/NIT: {cliente.cedula || cliente.identificacion || "N/A"}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Correo: {cliente.email || "No registrado"}
                   </p>
                 </div>
 
