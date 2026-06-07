@@ -35,7 +35,14 @@ class PrendaSerializer(serializers.ModelSerializer):
             'id', 'nombre', 'tipo_prenda', 'tipo_prenda_nombre', 
             'tipo_oro', 'tipo_oro_nombre', 
             'es_chatarra', 'es_recuperable', 
-            'gramos', 'existencia', 'archivado'
+            'gramos', 'existencia', 'archivado',
+            'demand_score', 'demand_label', 'demand_recomendacion', 'demand_calculado_en'
+        ]
+        read_only_fields = [
+            'demand_score',
+            'demand_label',
+            'demand_recomendacion',
+            'demand_calculado_en',
         ]
 
     def validate(self, data):

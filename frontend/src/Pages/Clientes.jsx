@@ -91,21 +91,25 @@ const Clientes = () => {
     }
 
     try {
-      const [detalleRes, ventasRes] = await Promise.all([
+      const [detalleRes, ventasRes, prediccionRes] = await Promise.all([
         fetch(apiUrl(`terceros/clientes/${clienteId}/`)),
         fetch(apiUrl(`compra_venta/ventas/por-cliente-id/?cliente_id=${clienteId}`)),
+        fetch(apiUrl(`prediccion/clientes/${clienteId}/`)),
       ]);
 
       if (!detalleRes.ok) throw new Error("Error al obtener detalle del cliente");
       if (!ventasRes.ok) throw new Error("Error al obtener ventas");
+      if (!prediccionRes.ok) throw new Error("Error al obtener predicción del cliente");
 
       const detalle = await detalleRes.json();
       const ventas = await ventasRes.json();
+      const prediccion = await prediccionRes.json();
 
       const ventasCliente = ventas.filter((v) => v.cliente === clienteId);
 
       setSelectedClient({
         ...detalle,
+        ...prediccion,
         historial: ventasCliente,
       });
     } catch (err) {

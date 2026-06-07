@@ -33,6 +33,15 @@ class Cliente(models.Model):
     cedula = models.CharField(max_length=20, unique=True)
     fecha_registro = models.DateField(auto_now_add=True)
     archivado = models.BooleanField(default=False)
+    rfm_score = models.FloatField(default=0)
+    rfm_recency_dias = models.IntegerField(default=0)
+    rfm_frequency = models.IntegerField(default=0)
+    rfm_monetary_promedio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ciclo_compra_promedio_dias = models.IntegerField(default=0)
+    proxima_compra_estimada = models.DateField(null=True, blank=True)
+    probabilidad_compra = models.CharField(max_length=10, default='Baja')
+    productos_recomendados = models.JSONField(default=list)
+    prediccion_calculada_en = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre} - {self.cedula}"

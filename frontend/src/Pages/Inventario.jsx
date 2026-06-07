@@ -170,6 +170,10 @@ export default function Inventario() {
           av = a.es_recuperable ? 1 : 0;
           bv = b.es_recuperable ? 1 : 0;
           return direction === 'asc' ? av - bv : bv - av;
+        case 'demand_score':
+          av = parseFloat(a.demand_score || 0);
+          bv = parseFloat(b.demand_score || 0);
+          return direction === 'asc' ? av - bv : bv - av;
         default:
           return 0;
       }

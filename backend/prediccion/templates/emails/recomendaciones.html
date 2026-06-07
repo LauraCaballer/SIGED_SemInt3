@@ -1,0 +1,22 @@
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2937;">
+    <h2 style="margin-bottom: 12px;">Hola {{ cliente.nombre }},</h2>
+    <p style="margin-bottom: 16px;">
+      Seleccionamos estos productos pensando en tus preferencias recientes.
+    </p>
+
+    <ul style="padding-left: 18px;">
+      {% for producto in productos %}
+        <li style="margin-bottom: 10px;">
+          <strong>{{ producto.nombre }}</strong>
+          <span> - {{ producto.tipo_prenda.nombre }} / {{ producto.tipo_oro.nombre }}</span>
+          <span> - {{ producto.gramos }} g</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <p style="margin-top: 18px;">
+      Gracias por seguir con nosotros.
+    </p>
+  </body>
+</html>

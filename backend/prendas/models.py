@@ -55,6 +55,10 @@ class Prenda(models.Model):
         validators=[MinValueValidator(Decimal('0.01'))]
     )
     existencia = models.PositiveIntegerField(default=1)
+    demand_score = models.FloatField(default=0)
+    demand_label = models.CharField(max_length=10, default='Baja')
+    demand_recomendacion = models.CharField(max_length=20, default='→ Mantener')
+    demand_calculado_en = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.tipo_prenda.nombre} - {self.tipo_oro.nombre} ({self.gramos}g)"

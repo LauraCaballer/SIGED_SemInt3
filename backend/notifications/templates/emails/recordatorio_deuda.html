@@ -1,0 +1,18 @@
+<html>
+  <body style="font-family: Arial, sans-serif; color: #1f2937;">
+    <h2 style="margin-bottom: 12px;">Hola {{ client_name }},</h2>
+    <p style="margin-bottom: 16px;">
+      Le escribimos para recordarle que tiene una deuda pendiente registrada en el sistema.
+    </p>
+
+    <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
+      <p><strong>Tipo de deuda:</strong> {{ deuda_tipo }}</p>
+      <p><strong>ID de venta:</strong> #{{ deuda_venta_id }}</p>
+      <p><strong>Monto pendiente:</strong> ${{ deuda_monto }}</p>
+    </div>
+
+    <p style="margin-top: 18px;">
+      Si ya realizó el pago, por favor ignore este mensaje.
+    </p>
+  </body>
+</html>

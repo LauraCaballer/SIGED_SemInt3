@@ -31,6 +31,17 @@ class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = '__all__'
+        read_only_fields = [
+            'rfm_score',
+            'rfm_recency_dias',
+            'rfm_frequency',
+            'rfm_monetary_promedio',
+            'ciclo_compra_promedio_dias',
+            'proxima_compra_estimada',
+            'probabilidad_compra',
+            'productos_recomendados',
+            'prediccion_calculada_en',
+        ]
 
     def validate(self, data):
         """

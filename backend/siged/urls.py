@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/egreso_ingreso/', include('egreso_ingreso.urls')),
     path('api/apartado_credito/', include('apartado_credito.urls')),
     path('api/compra_venta/', include('compra_venta.urls')),
+    path('api/prediccion/', include('prediccion.urls')),
 
 
     path('api/notifications/', include('notifications.urls')),

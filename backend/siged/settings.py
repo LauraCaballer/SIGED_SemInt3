@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'egreso_ingreso',      
     'notifications',
     'api_auth',  
+    'prediccion.apps.PrediccionConfig',
 ]
 
 MIDDLEWARE = [
@@ -143,6 +144,32 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@siged.local')
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'memory://')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'cache+memory://')
+CELERY_TASK_ALWAYS_EAGER = os.getenv('CELERY_TASK_ALWAYS_EAGER', 'false').lower() == 'true'
+CELERY_BEAT_SCHEDULE = {
+    'recalcular-predicciones-clientes': {
+        'task': 'prediccion.tasks.recalcular_predicciones_vencidas',
+        'schedule': 60 * 60 * 24,
+    },
+    'recalcular-demand-productos': {
+        'task': 'prediccion.tasks.recalcular_demand_scores',
+        'schedule': 60 * 60 * 24,
+    },
+    'enviar-recordatorios-automaticos': {
+        'task': 'notifications.tasks.ejecutar_recordatorios_automaticos_task',
+        'schedule': 60 * 60 * 24,
+    },
+}
 
 # CORS settings (django-cors-headers)
 CORS_ALLOW_ALL_ORIGINS = True

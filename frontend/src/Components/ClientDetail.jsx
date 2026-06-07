@@ -1,5 +1,5 @@
 import React from "react";
-import { FaPhone, FaEnvelope, FaIdCard, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaIdCard, FaMapMarkerAlt, FaChartLine, FaCalendarAlt, FaBoxes } from "react-icons/fa";
 
 // Función para formatear números al estándar español: 53.189,90
 const formatNumber = (value, decimals = 2) => {
@@ -53,6 +53,68 @@ const ClientDetail = ({ cliente, historial }) => {
             <span className="font-medium">Dirección:</span>
             {cliente.direccion || "No registrada"}
           </p>
+        </div>
+      </div>
+
+      {/* Predicción */}
+      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <FaChartLine className="text-purple-600" />
+          Predicción del cliente
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-lg bg-white border border-gray-200 p-3">
+            <p className="text-xs uppercase text-gray-500 mb-1">Score RFM</p>
+            <strong className="text-2xl text-gray-800">
+              {formatNumber(cliente.rfm_score || 0, 2)}
+            </strong>
+            <p className="text-sm text-gray-600 mt-1">{cliente.probabilidad_compra || "Baja"}</p>
+          </div>
+
+          <div className="rounded-lg bg-white border border-gray-200 p-3">
+            <p className="text-xs uppercase text-gray-500 mb-1 flex items-center gap-1">
+              <FaCalendarAlt /> Próxima compra
+            </p>
+            <strong className="text-lg text-gray-800 block">
+              {cliente.proxima_compra_estimada || "Sin cálculo"}
+            </strong>
+            <p className="text-sm text-gray-600 mt-1">
+              Ciclo promedio: {cliente.ciclo_compra_promedio_dias || 0} días
+            </p>
+          </div>
+
+          <div className="rounded-lg bg-white border border-gray-200 p-3">
+            <p className="text-xs uppercase text-gray-500 mb-1 flex items-center gap-1">
+              <FaBoxes /> Recomendaciones
+            </p>
+            <strong className="text-lg text-gray-800 block">
+              {(cliente.productos_recomendados_detalle || []).length} productos
+            </strong>
+            <p className="text-sm text-gray-600 mt-1">
+              Calculado: {cliente.prediccion_calculada_en || "Pendiente"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <p className="text-sm font-semibold text-gray-700 mb-2">Productos sugeridos</p>
+          {cliente.productos_recomendados_detalle && cliente.productos_recomendados_detalle.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {cliente.productos_recomendados_detalle.map((producto) => (
+                <div key={producto.id} className="rounded-lg border border-gray-200 bg-white p-3">
+                  <strong className="block text-gray-800">{producto.nombre}</strong>
+                  <p className="text-sm text-gray-600">
+                    {producto.tipo_prenda_nombre} · {producto.tipo_oro_nombre}
+                  </p>
+                  <p className="text-sm text-gray-600">Peso: {formatNumber(producto.gramos, 2)} g</p>
+                  <p className="text-sm text-gray-600">Stock: {producto.existencia}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 italic">Aún no hay productos sugeridos.</p>
+          )}
         </div>
       </div>
 
