@@ -36,6 +36,22 @@ def _productos_globales_fallback(excluidos=None, limite=3):
     return ids
 
 
+def _productos_respaldo_para_cliente(cliente, limite=3):
+    productos_ids = list(cliente.productos_recomendados or [])
+    if productos_ids:
+        return productos_ids[:limite]
+
+    top_por_demanda = list(
+        Prenda.objects.filter(archivado=False)
+        .order_by("-demand_score", "-existencia", "nombre")
+        .values_list("id", flat=True)[:limite]
+    )
+    if top_por_demanda:
+        return top_por_demanda
+
+    return _productos_globales_fallback(limite=limite)
+
+
 def calcular_rfm(cliente_id):
     cliente = Cliente.objects.get(pk=cliente_id)
     ventas = list(Venta.objects.filter(cliente=cliente).order_by("fecha", "id"))
@@ -361,11 +377,8 @@ def enviar_recomendaciones_por_correo(cliente):
 def enviar_sugerencias_a_clientes_activos():
     from prediccion.models import CorreoRecomendacion
 
-    clientes = (
-        Cliente.objects.filter(archivado=False)
-        .exclude(email__isnull=True)
-        .exclude(email__exact="")
-    )
+    clientes = Cliente.objects.filter(archivado=False).exclude(email__isnull=True).exclude(email__exact="")
+    total_clientes = clientes.count()
 
     enviados = 0
     omitidos = 0
@@ -377,7 +390,7 @@ def enviar_sugerencias_a_clientes_activos():
                 calcular_prediccion_cliente(cliente.id)
                 cliente.refresh_from_db()
 
-            productos_ids = cliente.productos_recomendados or []
+            productos_ids = _productos_respaldo_para_cliente(cliente, limite=3)
             if not productos_ids:
                 omitidos += 1
                 CorreoRecomendacion.objects.create(
@@ -428,4 +441,5 @@ def enviar_sugerencias_a_clientes_activos():
         "omitidos": omitidos,
         "errores": errores,
         "procesados": enviados + omitidos,
+        "clientes_activos_con_correo": total_clientes,
     }

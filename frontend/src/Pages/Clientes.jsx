@@ -196,7 +196,7 @@ const Clientes = () => {
       }
 
       alert(
-        `Correos enviados: ${data.enviados || 0} | omitidos: ${data.omitidos || 0}`
+        `Clientes con correo: ${data.clientes_activos_con_correo || 0} | correos enviados: ${data.enviados || 0} | omitidos: ${data.omitidos || 0}`
       );
     } catch (err) {
       console.error("Error enviando sugerencias masivas:", err);
