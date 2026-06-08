@@ -5,6 +5,7 @@ import ClientCard from "../Components/ClientCard";
 import ClientDetail from "../Components/ClientDetail";
 import ClientSearchBar from "../Components/ClientSearchBar";
 import ClientModal from "../Components/ClientModal";
+import { FaPaperPlane } from "react-icons/fa";
 
 // Función para formatear números al estándar español: 53.189,90
 const formatNumber = (value, decimals = 2) => {
@@ -26,6 +27,7 @@ const Clientes = () => {
   const [modalCliente, setModalCliente] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [mostrarArchivados, setMostrarArchivados] = useState(false);
+  const [sendingMassMail, setSendingMassMail] = useState(false);
 
   // Unificamos el efecto de carga inicial y búsqueda para evitar doble carga
   useEffect(() => {
@@ -172,6 +174,38 @@ const Clientes = () => {
     }
   };
 
+  const handleEnviarMasivo = async () => {
+    if (sendingMassMail) return;
+
+    const confirmado = window.confirm(
+      "Se enviará un correo de sugerencias a todos los clientes activos con correo registrado. ¿Deseas continuar?"
+    );
+    if (!confirmado) return;
+
+    try {
+      setSendingMassMail(true);
+      const response = await fetch(apiUrl("prediccion/clientes/enviar-masivo/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.error || "No se pudo enviar el correo masivo");
+      }
+
+      alert(
+        `Correos enviados: ${data.enviados || 0} | omitidos: ${data.omitidos || 0}`
+      );
+    } catch (err) {
+      console.error("Error enviando sugerencias masivas:", err);
+      alert(err.message || "No se pudo completar el envío masivo");
+    } finally {
+      setSendingMassMail(false);
+    }
+  };
+
   // Guardar cliente (crear o actualizar)
   const handleSave = (clienteActualizado) => {
     if (isCreating) {
@@ -204,6 +238,18 @@ const Clientes = () => {
   return (
     <div className="p-6 max-w-6xl mx-auto relative">
       <div className="absolute right-4 top-6 flex gap-3">
+        {!mostrarArchivados && (
+          <button
+            onClick={handleEnviarMasivo}
+            disabled={sendingMassMail}
+            className="bg-emerald-600 text-white px-3 py-2 rounded-lg shadow hover:bg-emerald-700 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Enviar sugerencias a clientes activos"
+          >
+            <FaPaperPlane size={14} />
+            <span>{sendingMassMail ? "Enviando..." : "Sugerir compra"}</span>
+          </button>
+        )}
+
         {!mostrarArchivados && (
           <button
             onClick={handleCreateClick}

@@ -356,3 +356,76 @@ def enviar_recomendaciones_por_correo(cliente):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
     return [producto.pk for producto in productos]
+
+
+def enviar_sugerencias_a_clientes_activos():
+    from prediccion.models import CorreoRecomendacion
+
+    clientes = (
+        Cliente.objects.filter(archivado=False)
+        .exclude(email__isnull=True)
+        .exclude(email__exact="")
+    )
+
+    enviados = 0
+    omitidos = 0
+    errores = []
+
+    for cliente in clientes:
+        try:
+            if not cliente.productos_recomendados:
+                calcular_prediccion_cliente(cliente.id)
+                cliente.refresh_from_db()
+
+            productos_ids = cliente.productos_recomendados or []
+            if not productos_ids:
+                omitidos += 1
+                CorreoRecomendacion.objects.create(
+                    cliente=cliente,
+                    productos_incluidos=[],
+                    estado="omitido",
+                )
+                continue
+
+            productos = list(Prenda.objects.filter(pk__in=productos_ids))
+            productos.sort(key=lambda producto: productos_ids.index(producto.pk))
+
+            html_content = render_to_string(
+                "emails/recomendaciones.html",
+                {
+                    "cliente": cliente,
+                    "productos": productos,
+                    "intro_text": "Pensamos que esto podría gustarte.",
+                },
+            )
+
+            msg = EmailMultiAlternatives(
+                subject=f"Pensamos que esto podría gustarte, {cliente.nombre}",
+                body="Tenemos productos que creemos que podrían gustarte.",
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                to=[cliente.email],
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            enviados += 1
+            CorreoRecomendacion.objects.create(
+                cliente=cliente,
+                productos_incluidos=productos_ids,
+                estado="enviado",
+            )
+        except Exception as exc:
+            omitidos += 1
+            errores.append({"cliente_id": cliente.id, "error": str(exc)})
+            CorreoRecomendacion.objects.create(
+                cliente=cliente,
+                productos_incluidos=cliente.productos_recomendados or [],
+                estado="fallido",
+            )
+
+    return {
+        "enviados": enviados,
+        "omitidos": omitidos,
+        "errores": errores,
+        "procesados": enviados + omitidos,
+    }

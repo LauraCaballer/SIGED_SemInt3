@@ -2,7 +2,7 @@
   <body style="font-family: Arial, sans-serif; color: #1f2937;">
     <h2 style="margin-bottom: 12px;">Hola {{ cliente.nombre }},</h2>
     <p style="margin-bottom: 16px;">
-      Seleccionamos estos productos pensando en tus preferencias recientes.
+      {{ intro_text|default:"Seleccionamos estos productos pensando en tus preferencias recientes." }}
     </p>
 
     <ul style="padding-left: 18px;">

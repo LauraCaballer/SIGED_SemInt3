@@ -17,6 +17,7 @@ from .services import (
     calcular_demand_todos_los_productos,
     calcular_prediccion_cliente,
     enviar_recomendaciones_por_correo,
+    enviar_sugerencias_a_clientes_activos,
 )
 
 
@@ -94,3 +95,9 @@ class RecalcularDemandasAPIView(APIView):
     def post(self, request):
         calcular_demand_todos_los_productos()
         return Response({"detail": "Demandas recalculadas correctamente."}, status=status.HTTP_200_OK)
+
+
+class EnviarSugerenciasMasivasAPIView(APIView):
+    def post(self, request):
+        resultado = enviar_sugerencias_a_clientes_activos()
+        return Response(resultado, status=status.HTTP_200_OK)
