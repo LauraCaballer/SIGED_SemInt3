@@ -26,6 +26,7 @@ export default function Inventario() {
   const [modalArchivar, setModalArchivar] = useState(null);
   const [mostrarAgregar, setMostrarAgregar] = useState(false);
   const [mostrarArchivados, setMostrarArchivados] = useState(false);
+  const [ordenVisual, setOrdenVisual] = useState("default");
 
   // Formateo de números (gramos/pesos)
   const formatNumber = (value, decimals = 2) => {
@@ -53,6 +54,27 @@ export default function Inventario() {
     }
 
     // cycle back to default (no sort)
+    setSortConfig({ key: null, direction: null });
+  };
+
+  const handleChangeOrden = (value) => {
+    setOrdenVisual(value);
+
+    if (value === "prediccion") {
+      setSortConfig({ key: "demand_score", direction: "desc" });
+      return;
+    }
+
+    if (value === "stock") {
+      setSortConfig({ key: "existencia", direction: "desc" });
+      return;
+    }
+
+    if (value === "nombre") {
+      setSortConfig({ key: "nombre", direction: "asc" });
+      return;
+    }
+
     setSortConfig({ key: null, direction: null });
   };
 
@@ -369,6 +391,20 @@ export default function Inventario() {
             }}
           />
         </div>
+
+        <div className="filtro-grupo">
+          <label>Ordenar por:</label>
+          <select
+            value={ordenVisual}
+            onChange={(e) => handleChangeOrden(e.target.value)}
+            className="filtro-select filtro-prenda"
+          >
+            <option value="default">Orden original</option>
+            <option value="prediccion">Más probables de comprar</option>
+            <option value="stock">Mayor stock</option>
+            <option value="nombre">Nombre A-Z</option>
+          </select>
+        </div>
       </div>
 
       {/* 🧾 Tabla */}
@@ -380,6 +416,8 @@ export default function Inventario() {
             <th onClick={() => handleSort('tipo_oro_nombre')} className="cursor-pointer"><FaGem className="inline mr-1" />Material {sortConfig.key==='tipo_oro_nombre' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
             <th onClick={() => handleSort('peso')} className="cursor-pointer"><FaWeight className="inline mr-1" />Peso {sortConfig.key==='peso' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
             <th onClick={() => handleSort('existencia')} className="cursor-pointer"><FaHashtag className="inline mr-1" />Cantidad {sortConfig.key==='existencia' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
+            <th onClick={() => handleSort('demand_score')} className="cursor-pointer"><FaLayerGroup className="inline mr-1" />Predicción {sortConfig.key==='demand_score' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
+            <th>Recomendación</th>
             <th onClick={() => handleSort('es_chatarra')} className="cursor-pointer"><FaTag className="inline mr-1" />Chatarra {sortConfig.key==='es_chatarra' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
             <th onClick={() => handleSort('es_recuperable')} className="cursor-pointer"><FaTag className="inline mr-1" />Recuperable {sortConfig.key==='es_recuperable' && (sortConfig.direction==='asc' ? '▲' : sortConfig.direction==='desc' ? '▼' : '')}</th>
             <th>Acciones</th>
@@ -395,6 +433,8 @@ export default function Inventario() {
               <td className={p.existencia > 0 ? "cantidad-verde" : "cantidad-roja"}>
                 {p.existencia}
               </td>
+              <td>{formatNumber(p.demand_score || 0, 2)}</td>
+              <td>{p.demand_recomendacion || "→ Mantener"}</td>
               <td>
                 {p.es_chatarra ? (
                   <FaCheck size={16} color="#0a9300" className="icon-verde" />
