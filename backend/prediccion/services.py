@@ -1,13 +1,14 @@
+import os
 from collections import defaultdict
 from datetime import timedelta
 from decimal import Decimal
 
-from django.core.mail import EmailMultiAlternatives
+import requests
+from django.conf import settings
 from django.db.models import Avg, Count, Max, Sum
 from django.db.models.functions import ExtractMonth
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.conf import settings
 
 from compra_venta.models import Venta, VentaPrenda
 from prendas.models import Prenda
@@ -52,10 +53,35 @@ def _productos_respaldo_para_cliente(cliente, limite=3):
     return _productos_globales_fallback(limite=limite)
 
 
+def _enviar_html_por_brevo(cliente_email, cliente_nombre, subject, html_content, texto_plano):
+    api_key = os.getenv("BREVO_API_KEY") or getattr(settings, "BREVO_API_KEY", None)
+    sender_email = os.getenv("BREVO_SENDER_EMAIL", getattr(settings, "BREVO_SENDER_EMAIL", "formcreatorufps@gmail.com"))
+    sender_name = os.getenv("BREVO_SENDER_NAME", getattr(settings, "BREVO_SENDER_NAME", "SIGED"))
+
+    if not api_key:
+        raise RuntimeError("Brevo configuration missing")
+
+    payload = {
+        "sender": {"email": sender_email, "name": sender_name},
+        "to": [{"email": cliente_email, "name": cliente_nombre or ""}],
+        "subject": subject,
+        "htmlContent": html_content,
+        "textContent": texto_plano,
+    }
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        json=payload,
+        headers={"api-key": api_key, "Content-Type": "application/json"},
+        timeout=30,
+    )
+    if response.status_code < 200 or response.status_code >= 300:
+        raise RuntimeError(f"Brevo respondió {response.status_code}: {response.text}")
+    return "brevo"
+
+
 def calcular_rfm(cliente_id):
     cliente = Cliente.objects.get(pk=cliente_id)
     ventas = list(Venta.objects.filter(cliente=cliente).order_by("fecha", "id"))
-
     hoy = timezone.localdate()
 
     if not ventas:
@@ -143,7 +169,6 @@ def recomendar_productos(cliente_id):
 
     hoy = timezone.localdate()
 
-    # Estrategia 1: recompra
     for producto_id, fechas in compras_por_producto.items():
         if producto_id not in productos_activos:
             continue
@@ -159,7 +184,6 @@ def recomendar_productos(cliente_id):
             dias_restantes = max((vence_en - hoy).days, 0)
             candidatos[producto_id] += max(35, 100 - (dias_restantes * 3)) * 1.5
 
-    # Estrategia 2: colaborativo simple
     if Cliente.objects.count() >= 20:
         score = cliente.rfm_score or 0
         clientes_similares = Cliente.objects.filter(
@@ -181,7 +205,6 @@ def recomendar_productos(cliente_id):
                 if producto_id in productos_activos:
                     candidatos[producto_id] += ((row["frecuencia"] or 0) / max_freq) * 100 * 1.0
 
-    # Estrategia 3: categoría/tipo favorito
     categoria_favorita = (
         VentaPrenda.objects.filter(venta__cliente=cliente)
         .values("prenda__tipo_prenda_id")
@@ -412,14 +435,13 @@ def enviar_sugerencias_a_clientes_activos():
                 },
             )
 
-            msg = EmailMultiAlternatives(
-                subject=f"Pensamos que esto podría gustarte, {cliente.nombre}",
-                body="Tenemos productos que creemos que podrían gustarte.",
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                to=[cliente.email],
+            _enviar_html_por_brevo(
+                cliente.email,
+                cliente.nombre,
+                f"Pensamos que esto podría gustarte, {cliente.nombre}",
+                html_content,
+                "Tenemos productos que creemos que podrían gustarte.",
             )
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
 
             enviados += 1
             CorreoRecomendacion.objects.create(
