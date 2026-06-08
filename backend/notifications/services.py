@@ -4,10 +4,11 @@ from datetime import timedelta
 import requests
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from apartado_credito.models import Apartado, Credito, ESTADO_EN_PROCESO
+from apartado_credito.models import Apartado, Credito, ESTADO_CANCELADO, ESTADO_FINALIZADO
 from compra_venta.models import Compra, Venta
 
 from .models import ConfiguracionNotificacion, RecordatorioEnvio
@@ -50,27 +51,38 @@ def _detalle_deuda(tipo_deuda, deuda):
 def obtener_deudas_vencidas():
     deudas = []
 
-    creditos = Credito.objects.filter(
-        fecha_limite__lt=timezone.localdate(),
-        estado_id=ESTADO_EN_PROCESO,
-        monto_pendiente__gt=0,
-    ).select_related("estado")
-    for credito in creditos:
-        detalle = _detalle_deuda("credito", credito)
-        if detalle:
-            detalle["deuda"] = credito
-            deudas.append(detalle)
+    ventas = (
+        Venta.objects.select_related(
+            "cliente",
+            "credito",
+            "credito__estado",
+            "apartado",
+            "apartado__estado",
+        )
+        .filter(Q(credito__isnull=False) | Q(apartado__isnull=False))
+        .order_by("id")
+    )
 
-    apartados = Apartado.objects.filter(
-        fecha_limite__lt=timezone.localdate(),
-        estado_id=ESTADO_EN_PROCESO,
-        monto_pendiente__gt=0,
-    ).select_related("estado")
-    for apartado in apartados:
-        detalle = _detalle_deuda("apartado", apartado)
-        if detalle:
-            detalle["deuda"] = apartado
-            deudas.append(detalle)
+    hoy = timezone.localdate()
+    estados_bloqueados = {ESTADO_FINALIZADO, ESTADO_CANCELADO}
+
+    for venta in ventas:
+        if venta.credito and venta.credito.monto_pendiente > 0:
+            credito = venta.credito
+            if credito.estado_id not in estados_bloqueados and credito.fecha_limite < hoy:
+                detalle = _detalle_deuda("credito", credito)
+                if detalle:
+                    detalle["deuda"] = credito
+                    deudas.append(detalle)
+                continue
+
+        if venta.apartado and venta.apartado.monto_pendiente > 0:
+            apartado = venta.apartado
+            if apartado.estado_id not in estados_bloqueados and apartado.fecha_limite < hoy:
+                detalle = _detalle_deuda("apartado", apartado)
+                if detalle:
+                    detalle["deuda"] = apartado
+                    deudas.append(detalle)
 
     return deudas
 
@@ -138,6 +150,7 @@ def ejecutar_recordatorios_automaticos():
             "enviados": 0,
             "omitidos": 0,
             "procesados": 0,
+            "motivo": "La configuracion de notificaciones esta desactivada",
         }
 
     deudas = obtener_deudas_vencidas()
